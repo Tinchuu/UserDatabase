@@ -6,6 +6,7 @@ import com.example.userdata.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -43,6 +44,13 @@ public class UserService {
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void changeData(User user) {
+        User current = userRepository.findByUsername(user.getUsername()).get();
+        current.setPublicData(user.getPublicData());
+        current.setSecretData(user.getSecretData());
     }
 
     public boolean login(String username, String password) throws NoSuchAlgorithmException {

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.PostUpdate;
+import javax.transaction.Transactional;
 import java.security.NoSuchAlgorithmException;
 
 
@@ -53,15 +54,24 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/user/{username}/{password}")
+    public ResponseEntity updateUser(@RequestBody User user) {
+        try {
+            if (userService.getUserByUsername(user.getUsername()).isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                userService.changeData(user);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @DeleteMapping("/user/{id}")
     public ResponseEntity deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PostUpdate
-    public ResponseEntity updateUser(@PathVariable String username) {
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
