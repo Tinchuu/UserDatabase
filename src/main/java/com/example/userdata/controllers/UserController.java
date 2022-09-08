@@ -1,7 +1,7 @@
-package com.example.examsdata.controllers;
+package com.example.userdata.controllers;
 
-import com.example.examsdata.models.User;
-import com.example.examsdata.service.UserService;
+import com.example.userdata.models.User;
+import com.example.userdata.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

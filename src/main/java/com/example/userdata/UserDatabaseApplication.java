@@ -1,4 +1,4 @@
-package com.example.examsdata;
+package com.example.userdata;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

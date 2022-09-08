@@ -1,6 +1,6 @@
-package com.example.examsdata.repository;
+package com.example.userdata.repository;
 
-import com.example.examsdata.models.User;
+import com.example.userdata.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

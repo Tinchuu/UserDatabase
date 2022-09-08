@@ -1,8 +1,8 @@
-package com.example.examsdata.service;
+package com.example.userdata.service;
 
-import com.example.examsdata.dto.UserDto;
-import com.example.examsdata.models.User;
-import com.example.examsdata.repository.UserRepository;
+import com.example.userdata.dto.UserDto;
+import com.example.userdata.models.User;
+import com.example.userdata.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
