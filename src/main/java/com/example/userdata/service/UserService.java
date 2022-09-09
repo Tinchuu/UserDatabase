@@ -1,6 +1,7 @@
 package com.example.userdata.service;
 
-import com.example.userdata.dto.UserDto;
+import com.example.userdata.dto.PrivateUserDto;
+import com.example.userdata.dto.PublicUserDto;
 import com.example.userdata.models.User;
 import com.example.userdata.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -24,13 +24,13 @@ public class UserService {
     private UserRepository userRepository;
 
     @Cacheable(value = "userCache")
-    public List<UserDto> getAllUsers() {
+    public List<PublicUserDto> getAllUsers() {
         List<User> unfilteredList = userRepository.findAll();
-        List<UserDto> filteredList = new ArrayList<>();
+        List<PublicUserDto> filteredList = new ArrayList<>();
 
         // Filters users so that the private data cannot be seen in listing
         for (User user : unfilteredList) {
-            filteredList.add(new UserDto(
+            filteredList.add(new PublicUserDto(
                     user.getId(),
                     user.getUsername(),
                     user.getPublicData()
@@ -50,16 +50,15 @@ public class UserService {
     }
 
     @Transactional
-    @CacheEvict(value = "dataCache", key = "username")
+    @CacheEvict(value = "dataCache", key = "#username")
     public void changeData(User user) {
         User current = userRepository.findByUsername(user.getUsername()).get();
         current.setPublicData(user.getPublicData());
         current.setSecretData(user.getSecretData());
     }
 
-    @Cacheable(value = "dataCache", key = "username")
     public boolean login(String username, String password) throws NoSuchAlgorithmException {
-        if (getUserByUsername(username).isEmpty()) {
+        if (userRepository.findByUsername(username).isEmpty()) {
             return false;
         } else {
             return userRepository.findByUsername(username).get().getPasswordHash().equals(sha256(password));
@@ -80,16 +79,27 @@ public class UserService {
         return output.toString();
     }
 
-    public Optional<User> getUserByUsername(String username) {
-        // Returns data with secret
-        return userRepository.findByUsername(username);
+    public boolean doesUserExist(String username) {
+        return userRepository.findByUsername(username).isPresent();
     }
 
-    public UserDto getUserByUsernameWithoutPassword(String username) {
-        User unfilteredData = getUserByUsername(username).get();
+    @Cacheable(value = "dataCache", key = "#username")
+    public PrivateUserDto getUserByUsername(String username) {
+        User unfilteredData = userRepository.findByUsername(username).get();
+
+        return new PrivateUserDto(
+                unfilteredData.getId(),
+                unfilteredData.getUsername(),
+                unfilteredData.getPublicData(),
+                unfilteredData.getSecretData()
+        );
+    }
+
+    public PublicUserDto getUserByUsernameWithoutPassword(String username) {
+        User unfilteredData = userRepository.findByUsername(username).get();
 
         // Returns filtered data without secret
-        return new UserDto(
+        return new PublicUserDto(
                 unfilteredData.getId(),
                 unfilteredData.getUsername(),
                 unfilteredData.getPublicData()

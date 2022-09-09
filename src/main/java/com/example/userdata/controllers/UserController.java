@@ -31,7 +31,7 @@ public class UserController {
 
     @GetMapping("/user/{username}/{password}")
     public ResponseEntity getUserByUsername(@PathVariable String username, @PathVariable String password) throws NoSuchAlgorithmException {
-        if (userService.getUserByUsername(username).isPresent()) {
+        if (userService.doesUserExist(username)) {
             if (userService.login(username, password)) {
                 return new ResponseEntity<>(userService.getUserByUsername(username), HttpStatus.OK);
             }
@@ -42,7 +42,7 @@ public class UserController {
     @PostMapping("/user")
     public ResponseEntity createUser(@RequestBody User user) {
         try {
-            if (userService.getUserByUsername(user.getUsername()).isEmpty()) {
+            if (!userService.doesUserExist(user.getUsername())) {
                 userService.createUser(user);
             } else {
                 return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
@@ -57,7 +57,7 @@ public class UserController {
     @PostMapping("/user/{username}/{password}")
     public ResponseEntity updateUser(@RequestBody User user) {
         try {
-            if (userService.getUserByUsername(user.getUsername()).isEmpty()) {
+            if (!userService.doesUserExist(user.getUsername())) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             } else {
                 userService.changeData(user);
