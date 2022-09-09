@@ -4,6 +4,8 @@ import com.example.userdata.dto.UserDto;
 import com.example.userdata.models.User;
 import com.example.userdata.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -21,6 +23,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Cacheable(value = "userCache")
     public List<UserDto> getAllUsers() {
         List<User> unfilteredList = userRepository.findAll();
         List<UserDto> filteredList = new ArrayList<>();
@@ -47,12 +50,14 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "dataCache", key = "username")
     public void changeData(User user) {
         User current = userRepository.findByUsername(user.getUsername()).get();
         current.setPublicData(user.getPublicData());
         current.setSecretData(user.getSecretData());
     }
 
+    @Cacheable(value = "dataCache", key = "username")
     public boolean login(String username, String password) throws NoSuchAlgorithmException {
         if (getUserByUsername(username).isEmpty()) {
             return false;
